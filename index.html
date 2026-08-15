@@ -4,23 +4,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>冠力台球业务管理系统</title>
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, "Microsoft YaHei", sans-serif;
       background: #f4f6f8;
-      color: #222;
+      color: #1f2937;
     }
 
     header {
       background: #111827;
       color: white;
-      padding: 20px 30px;
+      padding: 24px 30px;
     }
 
     header h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: 26px;
     }
 
     header p {
@@ -29,9 +34,9 @@
     }
 
     .container {
-      max-width: 1200px;
-      margin: 30px auto;
-      padding: 0 20px;
+      max-width: 1400px;
+      margin: 28px auto;
+      padding: 0 20px 40px;
     }
 
     .stats {
@@ -45,13 +50,13 @@
       background: white;
       border-radius: 12px;
       padding: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     }
 
     .card h3 {
       margin: 0 0 10px;
-      font-size: 15px;
       color: #6b7280;
+      font-size: 15px;
     }
 
     .number {
@@ -59,26 +64,90 @@
       font-weight: bold;
     }
 
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    input,
+    select,
+    textarea {
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: white;
+    }
+
+    input,
+    select {
+      min-height: 40px;
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #111827;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-edit {
+      background: #eff6ff;
+      color: #1d4ed8;
+      padding: 6px 10px;
+    }
+
+    .btn-delete {
+      background: #fef2f2;
+      color: #dc2626;
+      padding: 6px 10px;
+    }
+
     .section-title {
-      margin: 30px 0 15px;
+      margin: 28px 0 14px;
       font-size: 20px;
       font-weight: bold;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      min-width: 1100px;
     }
 
-    th, td {
-      padding: 14px 12px;
+    th,
+    td {
+      padding: 13px 12px;
       border-bottom: 1px solid #eee;
       text-align: left;
       font-size: 14px;
+      vertical-align: middle;
     }
 
     th {
@@ -88,40 +157,98 @@
 
     .status {
       display: inline-block;
-      padding: 5px 10px;
+      padding: 5px 9px;
       border-radius: 20px;
       font-size: 12px;
+      background: #eef2ff;
+      color: #3730a3;
     }
 
-    .waiting {
-      background: #fff7ed;
-      color: #c2410c;
+    .actions {
+      display: flex;
+      gap: 6px;
     }
 
-    .replied {
-      background: #ecfdf5;
-      color: #047857;
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
     }
 
-    .follow {
-      background: #eff6ff;
-      color: #1d4ed8;
+    .modal.show {
+      display: flex;
     }
 
-    .btn {
-      display: inline-block;
-      margin-top: 20px;
-      background: #111827;
-      color: white;
-      padding: 10px 18px;
-      border-radius: 8px;
-      text-decoration: none;
-      cursor: pointer;
+    .modal-box {
+      width: 100%;
+      max-width: 700px;
+      background: white;
+      border-radius: 14px;
+      padding: 22px;
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
-    @media (max-width: 800px) {
+    .modal-box h2 {
+      margin-top: 0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 30px;
+      color: #9ca3af;
+    }
+
+    @media (max-width: 900px) {
       .stats {
         grid-template-columns: repeat(2, 1fr);
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group.full {
+        grid-column: auto;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .stats {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -139,99 +266,550 @@
   <div class="stats">
     <div class="card">
       <h3>客户总数</h3>
-      <div class="number">5</div>
+      <div class="number" id="totalCustomers">0</div>
     </div>
 
     <div class="card">
       <h3>已发送开发信</h3>
-      <div class="number">5</div>
+      <div class="number" id="sentCount">0</div>
     </div>
 
     <div class="card">
       <h3>已回复</h3>
-      <div class="number">3</div>
+      <div class="number" id="repliedCount">0</div>
     </div>
 
     <div class="card">
       <h3>重点跟进</h3>
-      <div class="number">3</div>
+      <div class="number" id="priorityCount">0</div>
     </div>
   </div>
 
-  <div class="section-title">客户跟进列表</div>
+  <div class="section-title">客户管理</div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>客户名称</th>
-        <th>国家</th>
-        <th>客户类型</th>
-        <th>联系状态</th>
-        <th>当前进度</th>
-        <th>下一步</th>
-      </tr>
-    </thead>
+  <div class="toolbar">
+    <button class="btn-primary" onclick="openModal()">+ 新增客户</button>
 
-    <tbody>
-      <tr>
-        <td>The New Club</td>
-        <td>马来西亚</td>
-        <td>俱乐部</td>
-        <td><span class="status replied">已回复</span></td>
-        <td>等待装修及负责人确认</td>
-        <td>持续邮件跟进</td>
-      </tr>
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="搜索客户名称、邮箱、国家..."
+      oninput="renderTable()"
+    />
 
-      <tr>
-        <td>Ubuy Malaysia</td>
-        <td>马来西亚</td>
-        <td>零售平台</td>
-        <td><span class="status follow">待跟进</span></td>
-        <td>等待代理人员回复</td>
-        <td>3-5天后跟进</td>
-      </tr>
+    <select id="countryFilter" onchange="renderTable()">
+      <option value="">全部国家</option>
+    </select>
 
-      <tr>
-        <td>Toys“R”Us Malaysia</td>
-        <td>马来西亚</td>
-        <td>零售商</td>
-        <td><span class="status follow">内部审核</span></td>
-        <td>已转交相关团队</td>
-        <td>等待回复</td>
-      </tr>
+    <select id="statusFilter" onchange="renderTable()">
+      <option value="">全部状态</option>
+      <option>未联系</option>
+      <option>已发送</option>
+      <option>待跟进</option>
+      <option>已回复</option>
+      <option>内部审核</option>
+      <option>重点跟进</option>
+      <option>已报价</option>
+      <option>已成交</option>
+      <option>无意向</option>
+    </select>
 
-      <tr>
-        <td>Ipoh Swimming Club</td>
-        <td>马来西亚</td>
-        <td>俱乐部</td>
-        <td><span class="status waiting">已送达</span></td>
-        <td>尚未正式回复</td>
-        <td>发送跟进邮件</td>
-      </tr>
+    <button class="btn-secondary" onclick="clearFilters()">清除筛选</button>
+  </div>
 
-      <tr>
-        <td>Setia Alam Club House</td>
-        <td>马来西亚</td>
-        <td>俱乐部</td>
-        <td><span class="status waiting">工单已建立</span></td>
-        <td>等待工作人员处理</td>
-        <td>后续跟进</td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>客户名称</th>
+          <th>国家</th>
+          <th>客户类型</th>
+          <th>邮箱</th>
+          <th>WhatsApp</th>
+          <th>联系状态</th>
+          <th>当前进度</th>
+          <th>下次跟进</th>
+          <th>操作</th>
+        </tr>
+      </thead>
 
-  <div class="section-title">下一阶段功能</div>
-
-  <div class="card">
-    <p>① 客户资料新增、编辑、删除</p>
-    <p>② 自动记录开发信发送日期</p>
-    <p>③ 自动生成英文跟进邮件</p>
-    <p>④ 马来西亚 / 泰国 / 印尼 / 越南 / 新加坡客户分类</p>
-    <p>⑤ 报价与成交记录</p>
-    <p>⑥ 每日待跟进客户提醒</p>
+      <tbody id="customerTableBody"></tbody>
+    </table>
   </div>
 
 </div>
+
+<div class="modal" id="customerModal">
+  <div class="modal-box">
+
+    <h2 id="modalTitle">新增客户</h2>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label>客户名称 *</label>
+        <input id="customerName" />
+      </div>
+
+      <div class="form-group">
+        <label>国家 *</label>
+        <input id="country" placeholder="例如：马来西亚" />
+      </div>
+
+      <div class="form-group">
+        <label>客户类型</label>
+        <select id="customerType">
+          <option>俱乐部</option>
+          <option>零售商</option>
+          <option>经销商</option>
+          <option>代理商</option>
+          <option>酒店</option>
+          <option>度假村</option>
+          <option>物业</option>
+          <option>电商平台</option>
+          <option>其他</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>联系状态</label>
+        <select id="status">
+          <option>未联系</option>
+          <option>已发送</option>
+          <option>待跟进</option>
+          <option>已回复</option>
+          <option>内部审核</option>
+          <option>重点跟进</option>
+          <option>已报价</option>
+          <option>已成交</option>
+          <option>无意向</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>邮箱</label>
+        <input id="email" type="email" />
+      </div>
+
+      <div class="form-group">
+        <label>WhatsApp</label>
+        <input id="whatsapp" />
+      </div>
+
+      <div class="form-group">
+        <label>首次联系日期</label>
+        <input id="contactDate" type="date" />
+      </div>
+
+      <div class="form-group">
+        <label>下次跟进日期</label>
+        <input id="followUpDate" type="date" />
+      </div>
+
+      <div class="form-group full">
+        <label>当前进度</label>
+        <textarea id="progress"></textarea>
+      </div>
+
+      <div class="form-group full">
+        <label>备注</label>
+        <textarea id="notes"></textarea>
+      </div>
+
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">取消</button>
+      <button class="btn-primary" onclick="saveCustomer()">保存客户</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+  const defaultCustomers = [
+    {
+      id: 1,
+      name: "The New Club",
+      country: "马来西亚",
+      type: "俱乐部",
+      email: "",
+      whatsapp: "",
+      status: "已回复",
+      progress: "等待装修及负责人确认",
+      contactDate: "",
+      followUpDate: "",
+      notes: ""
+    },
+    {
+      id: 2,
+      name: "Ubuy Malaysia",
+      country: "马来西亚",
+      type: "电商平台",
+      email: "",
+      whatsapp: "",
+      status: "待跟进",
+      progress: "等待代理人员回复",
+      contactDate: "",
+      followUpDate: "",
+      notes: ""
+    },
+    {
+      id: 3,
+      name: "Toys“R”Us Malaysia",
+      country: "马来西亚",
+      type: "零售商",
+      email: "",
+      whatsapp: "",
+      status: "内部审核",
+      progress: "已转交相关团队",
+      contactDate: "",
+      followUpDate: "",
+      notes: ""
+    },
+    {
+      id: 4,
+      name: "Ipoh Swimming Club",
+      country: "马来西亚",
+      type: "俱乐部",
+      email: "",
+      whatsapp: "",
+      status: "已发送",
+      progress: "尚未正式回复",
+      contactDate: "",
+      followUpDate: "",
+      notes: ""
+    },
+    {
+      id: 5,
+      name: "Setia Alam Club House",
+      country: "马来西亚",
+      type: "俱乐部",
+      email: "",
+      whatsapp: "",
+      status: "待跟进",
+      progress: "等待工作人员处理",
+      contactDate: "",
+      followUpDate: "",
+      notes: ""
+    }
+  ];
+
+  let customers = JSON.parse(localStorage.getItem("guanliCustomers"));
+
+  if (!customers) {
+    customers = defaultCustomers;
+    saveToStorage();
+  }
+
+  let editingId = null;
+
+  function saveToStorage() {
+    localStorage.setItem("guanliCustomers", JSON.stringify(customers));
+  }
+
+  function renderTable() {
+
+    const tbody = document.getElementById("customerTableBody");
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const countryFilter = document.getElementById("countryFilter").value;
+    const statusFilter = document.getElementById("statusFilter").value;
+
+    let filtered = customers.filter(customer => {
+
+      const keywordMatch =
+        customer.name.toLowerCase().includes(search) ||
+        customer.country.toLowerCase().includes(search) ||
+        (customer.email || "").toLowerCase().includes(search);
+
+      const countryMatch =
+        !countryFilter || customer.country === countryFilter;
+
+      const statusMatch =
+        !statusFilter || customer.status === statusFilter;
+
+      return keywordMatch && countryMatch && statusMatch;
+    });
+
+    tbody.innerHTML = "";
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" class="empty">暂无符合条件的客户</td>
+        </tr>
+      `;
+      updateStats();
+      return;
+    }
+
+    filtered.forEach(customer => {
+
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${escapeHtml(customer.name)}</td>
+        <td>${escapeHtml(customer.country)}</td>
+        <td>${escapeHtml(customer.type)}</td>
+        <td>${escapeHtml(customer.email || "-")}</td>
+        <td>${escapeHtml(customer.whatsapp || "-")}</td>
+        <td>
+          <span class="status">${escapeHtml(customer.status)}</span>
+        </td>
+        <td>${escapeHtml(customer.progress || "-")}</td>
+        <td>${escapeHtml(customer.followUpDate || "-")}</td>
+        <td>
+          <div class="actions">
+            <button class="btn-edit" onclick="editCustomer(${customer.id})">
+              编辑
+            </button>
+            <button class="btn-delete" onclick="deleteCustomer(${customer.id})">
+              删除
+            </button>
+          </div>
+        </td>
+      `;
+
+      tbody.appendChild(row);
+
+    });
+
+    updateStats();
+  }
+
+  function updateStats() {
+
+    document.getElementById("totalCustomers").textContent =
+      customers.length;
+
+    document.getElementById("sentCount").textContent =
+      customers.filter(c =>
+        ["已发送", "待跟进", "已回复", "内部审核", "重点跟进", "已报价", "已成交"]
+        .includes(c.status)
+      ).length;
+
+    document.getElementById("repliedCount").textContent =
+      customers.filter(c =>
+        ["已回复", "重点跟进", "已报价", "已成交"]
+        .includes(c.status)
+      ).length;
+
+    document.getElementById("priorityCount").textContent =
+      customers.filter(c =>
+        ["待跟进", "重点跟进", "已报价"]
+        .includes(c.status)
+      ).length;
+  }
+
+  function updateCountryFilter() {
+
+    const select = document.getElementById("countryFilter");
+    const current = select.value;
+
+    const countries = [
+      ...new Set(customers.map(c => c.country).filter(Boolean))
+    ].sort();
+
+    select.innerHTML =
+      '<option value="">全部国家</option>';
+
+    countries.forEach(country => {
+
+      const option = document.createElement("option");
+
+      option.value = country;
+      option.textContent = country;
+
+      select.appendChild(option);
+
+    });
+
+    select.value = current;
+  }
+
+  function openModal() {
+
+    editingId = null;
+
+    document.getElementById("modalTitle").textContent =
+      "新增客户";
+
+    clearForm();
+
+    document.getElementById("customerModal")
+      .classList.add("show");
+  }
+
+  function closeModal() {
+
+    document.getElementById("customerModal")
+      .classList.remove("show");
+
+  }
+
+  function clearForm() {
+
+    document.getElementById("customerName").value = "";
+    document.getElementById("country").value = "";
+    document.getElementById("customerType").value = "俱乐部";
+    document.getElementById("status").value = "未联系";
+    document.getElementById("email").value = "";
+    document.getElementById("whatsapp").value = "";
+    document.getElementById("contactDate").value = "";
+    document.getElementById("followUpDate").value = "";
+    document.getElementById("progress").value = "";
+    document.getElementById("notes").value = "";
+
+  }
+
+  function saveCustomer() {
+
+    const name =
+      document.getElementById("customerName").value.trim();
+
+    const country =
+      document.getElementById("country").value.trim();
+
+    if (!name || !country) {
+      alert("请填写客户名称和国家");
+      return;
+    }
+
+    const data = {
+      id: editingId || Date.now(),
+      name: name,
+      country: country,
+      type: document.getElementById("customerType").value,
+      status: document.getElementById("status").value,
+      email: document.getElementById("email").value.trim(),
+      whatsapp: document.getElementById("whatsapp").value.trim(),
+      contactDate: document.getElementById("contactDate").value,
+      followUpDate: document.getElementById("followUpDate").value,
+      progress: document.getElementById("progress").value.trim(),
+      notes: document.getElementById("notes").value.trim()
+    };
+
+    if (editingId) {
+
+      const index =
+        customers.findIndex(c => c.id === editingId);
+
+      customers[index] = data;
+
+    } else {
+
+      customers.push(data);
+
+    }
+
+    saveToStorage();
+    updateCountryFilter();
+    renderTable();
+    closeModal();
+
+  }
+
+  function editCustomer(id) {
+
+    const customer =
+      customers.find(c => c.id === id);
+
+    if (!customer) return;
+
+    editingId = id;
+
+    document.getElementById("modalTitle").textContent =
+      "编辑客户";
+
+    document.getElementById("customerName").value =
+      customer.name || "";
+
+    document.getElementById("country").value =
+      customer.country || "";
+
+    document.getElementById("customerType").value =
+      customer.type || "其他";
+
+    document.getElementById("status").value =
+      customer.status || "未联系";
+
+    document.getElementById("email").value =
+      customer.email || "";
+
+    document.getElementById("whatsapp").value =
+      customer.whatsapp || "";
+
+    document.getElementById("contactDate").value =
+      customer.contactDate || "";
+
+    document.getElementById("followUpDate").value =
+      customer.followUpDate || "";
+
+    document.getElementById("progress").value =
+      customer.progress || "";
+
+    document.getElementById("notes").value =
+      customer.notes || "";
+
+    document.getElementById("customerModal")
+      .classList.add("show");
+
+  }
+
+  function deleteCustomer(id) {
+
+    const customer =
+      customers.find(c => c.id === id);
+
+    if (!customer) return;
+
+    if (!confirm(`确定删除客户：${customer.name}？`)) {
+      return;
+    }
+
+    customers =
+      customers.filter(c => c.id !== id);
+
+    saveToStorage();
+    updateCountryFilter();
+    renderTable();
+
+  }
+
+  function clearFilters() {
+
+    document.getElementById("searchInput").value = "";
+    document.getElementById("countryFilter").value = "";
+    document.getElementById("statusFilter").value = "";
+
+    renderTable();
+
+  }
+
+  function escapeHtml(text) {
+
+    return String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  document.getElementById("customerModal")
+    .addEventListener("click", function(event) {
+
+      if (event.target === this) {
+        closeModal();
+      }
+
+    });
+
+  updateCountryFilter();
+  renderTable();
+
+</script>
 
 </body>
 </html>
