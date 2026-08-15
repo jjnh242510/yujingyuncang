@@ -34,14 +34,14 @@
     }
 
     .container {
-      max-width: 1400px;
+      max-width: 1600px;
       margin: 28px auto;
-      padding: 0 20px 40px;
+      padding: 0 20px 50px;
     }
 
     .stats {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 16px;
       margin-bottom: 24px;
     }
@@ -62,6 +62,14 @@
     .number {
       font-size: 30px;
       font-weight: bold;
+    }
+
+    .danger-number {
+      color: #dc2626;
+    }
+
+    .warning-number {
+      color: #d97706;
     }
 
     .toolbar {
@@ -92,12 +100,14 @@
       resize: vertical;
     }
 
-    button {
+    button,
+    .file-button {
       border: none;
       border-radius: 8px;
       padding: 10px 16px;
       font-size: 14px;
       cursor: pointer;
+      display: inline-block;
     }
 
     .btn-primary {
@@ -108,6 +118,16 @@
     .btn-secondary {
       background: #e5e7eb;
       color: #111827;
+    }
+
+    .btn-success {
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    .btn-warning {
+      background: #fff7ed;
+      color: #c2410c;
     }
 
     .btn-edit {
@@ -138,7 +158,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 1100px;
+      min-width: 1500px;
     }
 
     th,
@@ -153,6 +173,9 @@
     th {
       background: #f9fafb;
       color: #4b5563;
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
 
     .status {
@@ -162,11 +185,33 @@
       font-size: 12px;
       background: #eef2ff;
       color: #3730a3;
+      white-space: nowrap;
+    }
+
+    .follow-normal {
+      color: #374151;
+    }
+
+    .follow-today {
+      color: #d97706;
+      font-weight: bold;
+      background: #fff7ed;
+      padding: 5px 8px;
+      border-radius: 7px;
+    }
+
+    .follow-overdue {
+      color: #dc2626;
+      font-weight: bold;
+      background: #fef2f2;
+      padding: 5px 8px;
+      border-radius: 7px;
     }
 
     .actions {
       display: flex;
       gap: 6px;
+      white-space: nowrap;
     }
 
     .modal {
@@ -186,7 +231,7 @@
 
     .modal-box {
       width: 100%;
-      max-width: 700px;
+      max-width: 850px;
       background: white;
       border-radius: 14px;
       padding: 22px;
@@ -232,7 +277,17 @@
       color: #9ca3af;
     }
 
-    @media (max-width: 900px) {
+    .hint {
+      margin-top: 10px;
+      color: #6b7280;
+      font-size: 13px;
+    }
+
+    #restoreFile {
+      display: none;
+    }
+
+    @media (max-width: 1100px) {
       .stats {
         grid-template-columns: repeat(2, 1fr);
       }
@@ -264,6 +319,7 @@
 <div class="container">
 
   <div class="stats">
+
     <div class="card">
       <h3>客户总数</h3>
       <div class="number" id="totalCustomers">0</div>
@@ -280,20 +336,29 @@
     </div>
 
     <div class="card">
-      <h3>重点跟进</h3>
-      <div class="number" id="priorityCount">0</div>
+      <h3>今日待跟进</h3>
+      <div class="number warning-number" id="todayFollowCount">0</div>
     </div>
+
+    <div class="card">
+      <h3>已逾期</h3>
+      <div class="number danger-number" id="overdueCount">0</div>
+    </div>
+
   </div>
 
   <div class="section-title">客户管理</div>
 
   <div class="toolbar">
-    <button class="btn-primary" onclick="openModal()">+ 新增客户</button>
+
+    <button class="btn-primary" onclick="openModal()">
+      + 新增客户
+    </button>
 
     <input
       id="searchInput"
       type="text"
-      placeholder="搜索客户名称、邮箱、国家..."
+      placeholder="搜索客户、邮箱、国家、产品..."
       oninput="renderTable()"
     />
 
@@ -314,19 +379,61 @@
       <option>无意向</option>
     </select>
 
-    <button class="btn-secondary" onclick="clearFilters()">清除筛选</button>
+    <select id="followFilter" onchange="renderTable()">
+      <option value="">全部跟进</option>
+      <option value="today">今日待跟进</option>
+      <option value="overdue">已逾期</option>
+      <option value="future">未来跟进</option>
+    </select>
+
+    <button class="btn-secondary" onclick="clearFilters()">
+      清除筛选
+    </button>
+
+  </div>
+
+  <div class="toolbar">
+
+    <button class="btn-success" onclick="exportCSV()">
+      导出 CSV
+    </button>
+
+    <button class="btn-warning" onclick="backupJSON()">
+      备份数据
+    </button>
+
+    <label class="file-button btn-secondary">
+      恢复备份
+      <input
+        type="file"
+        id="restoreFile"
+        accept=".json"
+        onchange="restoreJSON(event)"
+      />
+    </label>
+
+  </div>
+
+  <div class="hint">
+    建议每周至少备份一次。当前数据仍保存在浏览器本地。
   </div>
 
   <div class="table-wrap">
+
     <table>
+
       <thead>
         <tr>
           <th>客户名称</th>
           <th>国家</th>
           <th>客户类型</th>
+          <th>来源</th>
+          <th>产品意向</th>
           <th>邮箱</th>
           <th>WhatsApp</th>
           <th>联系状态</th>
+          <th>报价金额</th>
+          <th>最后联系</th>
           <th>当前进度</th>
           <th>下次跟进</th>
           <th>操作</th>
@@ -334,12 +441,15 @@
       </thead>
 
       <tbody id="customerTableBody"></tbody>
+
     </table>
+
   </div>
 
 </div>
 
 <div class="modal" id="customerModal">
+
   <div class="modal-box">
 
     <h2 id="modalTitle">新增客户</h2>
@@ -368,6 +478,35 @@
           <option>物业</option>
           <option>电商平台</option>
           <option>其他</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>客户来源</label>
+        <select id="source">
+          <option>邮件开发</option>
+          <option>Google搜索</option>
+          <option>WhatsApp</option>
+          <option>Facebook</option>
+          <option>TikTok</option>
+          <option>LinkedIn</option>
+          <option>展会</option>
+          <option>客户介绍</option>
+          <option>主动询盘</option>
+          <option>其他</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>产品意向</label>
+        <select id="productInterest">
+          <option>家用台球桌</option>
+          <option>商用台球桌</option>
+          <option>斯诺克台</option>
+          <option>台球杆</option>
+          <option>台球配件</option>
+          <option>多产品</option>
+          <option>待确认</option>
         </select>
       </div>
 
@@ -402,8 +541,21 @@
       </div>
 
       <div class="form-group">
+        <label>最后联系日期</label>
+        <input id="lastContactDate" type="date" />
+      </div>
+
+      <div class="form-group">
         <label>下次跟进日期</label>
         <input id="followUpDate" type="date" />
+      </div>
+
+      <div class="form-group">
+        <label>报价金额</label>
+        <input
+          id="quoteAmount"
+          placeholder="例如：USD 750"
+        />
       </div>
 
       <div class="form-group full">
@@ -419,11 +571,25 @@
     </div>
 
     <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal()">取消</button>
-      <button class="btn-primary" onclick="saveCustomer()">保存客户</button>
+
+      <button
+        class="btn-secondary"
+        onclick="closeModal()"
+      >
+        取消
+      </button>
+
+      <button
+        class="btn-primary"
+        onclick="saveCustomer()"
+      >
+        保存客户
+      </button>
+
     </div>
 
   </div>
+
 </div>
 
 <script>
@@ -434,12 +600,16 @@
       name: "The New Club",
       country: "马来西亚",
       type: "俱乐部",
+      source: "邮件开发",
+      productInterest: "家用台球桌",
       email: "",
       whatsapp: "",
       status: "已回复",
-      progress: "等待装修及负责人确认",
+      quoteAmount: "",
       contactDate: "",
+      lastContactDate: "",
       followUpDate: "",
+      progress: "等待装修及负责人确认",
       notes: ""
     },
     {
@@ -447,12 +617,16 @@
       name: "Ubuy Malaysia",
       country: "马来西亚",
       type: "电商平台",
+      source: "邮件开发",
+      productInterest: "家用台球桌",
       email: "",
       whatsapp: "",
       status: "待跟进",
-      progress: "等待代理人员回复",
+      quoteAmount: "",
       contactDate: "",
+      lastContactDate: "",
       followUpDate: "",
+      progress: "等待代理人员回复",
       notes: ""
     },
     {
@@ -460,12 +634,16 @@
       name: "Toys“R”Us Malaysia",
       country: "马来西亚",
       type: "零售商",
+      source: "邮件开发",
+      productInterest: "家用台球桌",
       email: "",
       whatsapp: "",
       status: "内部审核",
-      progress: "已转交相关团队",
+      quoteAmount: "",
       contactDate: "",
+      lastContactDate: "",
       followUpDate: "",
+      progress: "已转交相关团队",
       notes: ""
     },
     {
@@ -473,12 +651,16 @@
       name: "Ipoh Swimming Club",
       country: "马来西亚",
       type: "俱乐部",
+      source: "邮件开发",
+      productInterest: "家用台球桌",
       email: "",
       whatsapp: "",
       status: "已发送",
-      progress: "尚未正式回复",
+      quoteAmount: "",
       contactDate: "",
+      lastContactDate: "",
       followUpDate: "",
+      progress: "尚未正式回复",
       notes: ""
     },
     {
@@ -486,87 +668,260 @@
       name: "Setia Alam Club House",
       country: "马来西亚",
       type: "俱乐部",
+      source: "邮件开发",
+      productInterest: "家用台球桌",
       email: "",
       whatsapp: "",
       status: "待跟进",
-      progress: "等待工作人员处理",
+      quoteAmount: "",
       contactDate: "",
+      lastContactDate: "",
       followUpDate: "",
+      progress: "等待工作人员处理",
       notes: ""
     }
   ];
 
-  let customers = JSON.parse(localStorage.getItem("guanliCustomers"));
+  let customers = JSON.parse(
+    localStorage.getItem("guanliCustomers")
+  );
 
   if (!customers) {
     customers = defaultCustomers;
-    saveToStorage();
   }
+
+  customers = customers.map(customer => ({
+    id: customer.id || Date.now() + Math.random(),
+    name: customer.name || "",
+    country: customer.country || "",
+    type: customer.type || "其他",
+    source: customer.source || "邮件开发",
+    productInterest:
+      customer.productInterest || "待确认",
+    email: customer.email || "",
+    whatsapp: customer.whatsapp || "",
+    status: customer.status || "未联系",
+    quoteAmount: customer.quoteAmount || "",
+    contactDate: customer.contactDate || "",
+    lastContactDate:
+      customer.lastContactDate || "",
+    followUpDate: customer.followUpDate || "",
+    progress: customer.progress || "",
+    notes: customer.notes || ""
+  }));
+
+  saveToStorage();
 
   let editingId = null;
 
   function saveToStorage() {
-    localStorage.setItem("guanliCustomers", JSON.stringify(customers));
+    localStorage.setItem(
+      "guanliCustomers",
+      JSON.stringify(customers)
+    );
+  }
+
+  function getTodayString() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month =
+      String(now.getMonth() + 1).padStart(2, "0");
+    const day =
+      String(now.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
+
+  function getFollowStatus(date) {
+
+    if (!date) return "none";
+
+    const today = getTodayString();
+
+    if (date === today) {
+      return "today";
+    }
+
+    if (date < today) {
+      return "overdue";
+    }
+
+    return "future";
+  }
+
+  function renderFollowDate(date) {
+
+    if (!date) {
+      return "-";
+    }
+
+    const state = getFollowStatus(date);
+
+    if (state === "today") {
+      return `
+        <span class="follow-today">
+          今日 ${escapeHtml(date)}
+        </span>
+      `;
+    }
+
+    if (state === "overdue") {
+      return `
+        <span class="follow-overdue">
+          已逾期 ${escapeHtml(date)}
+        </span>
+      `;
+    }
+
+    return `
+      <span class="follow-normal">
+        ${escapeHtml(date)}
+      </span>
+    `;
   }
 
   function renderTable() {
 
-    const tbody = document.getElementById("customerTableBody");
-    const search = document.getElementById("searchInput").value.toLowerCase();
-    const countryFilter = document.getElementById("countryFilter").value;
-    const statusFilter = document.getElementById("statusFilter").value;
+    const tbody =
+      document.getElementById(
+        "customerTableBody"
+      );
 
-    let filtered = customers.filter(customer => {
+    const search =
+      document.getElementById(
+        "searchInput"
+      ).value.toLowerCase();
 
-      const keywordMatch =
-        customer.name.toLowerCase().includes(search) ||
-        customer.country.toLowerCase().includes(search) ||
-        (customer.email || "").toLowerCase().includes(search);
+    const countryFilter =
+      document.getElementById(
+        "countryFilter"
+      ).value;
 
-      const countryMatch =
-        !countryFilter || customer.country === countryFilter;
+    const statusFilter =
+      document.getElementById(
+        "statusFilter"
+      ).value;
 
-      const statusMatch =
-        !statusFilter || customer.status === statusFilter;
+    const followFilter =
+      document.getElementById(
+        "followFilter"
+      ).value;
 
-      return keywordMatch && countryMatch && statusMatch;
-    });
+    let filtered =
+      customers.filter(customer => {
+
+        const searchText = [
+          customer.name,
+          customer.country,
+          customer.email,
+          customer.whatsapp,
+          customer.productInterest,
+          customer.source,
+          customer.progress
+        ]
+        .join(" ")
+        .toLowerCase();
+
+        const keywordMatch =
+          searchText.includes(search);
+
+        const countryMatch =
+          !countryFilter ||
+          customer.country === countryFilter;
+
+        const statusMatch =
+          !statusFilter ||
+          customer.status === statusFilter;
+
+        let followMatch = true;
+
+        if (followFilter) {
+
+          followMatch =
+            getFollowStatus(
+              customer.followUpDate
+            ) === followFilter;
+
+        }
+
+        return (
+          keywordMatch &&
+          countryMatch &&
+          statusMatch &&
+          followMatch
+        );
+
+      });
 
     tbody.innerHTML = "";
 
     if (filtered.length === 0) {
+
       tbody.innerHTML = `
         <tr>
-          <td colspan="9" class="empty">暂无符合条件的客户</td>
+          <td colspan="13" class="empty">
+            暂无符合条件的客户
+          </td>
         </tr>
       `;
+
       updateStats();
       return;
     }
 
     filtered.forEach(customer => {
 
-      const row = document.createElement("tr");
+      const row =
+        document.createElement("tr");
 
       row.innerHTML = `
         <td>${escapeHtml(customer.name)}</td>
+
         <td>${escapeHtml(customer.country)}</td>
+
         <td>${escapeHtml(customer.type)}</td>
+
+        <td>${escapeHtml(customer.source)}</td>
+
+        <td>${escapeHtml(customer.productInterest)}</td>
+
         <td>${escapeHtml(customer.email || "-")}</td>
+
         <td>${escapeHtml(customer.whatsapp || "-")}</td>
+
         <td>
-          <span class="status">${escapeHtml(customer.status)}</span>
+          <span class="status">
+            ${escapeHtml(customer.status)}
+          </span>
         </td>
+
+        <td>${escapeHtml(customer.quoteAmount || "-")}</td>
+
+        <td>${escapeHtml(customer.lastContactDate || "-")}</td>
+
         <td>${escapeHtml(customer.progress || "-")}</td>
-        <td>${escapeHtml(customer.followUpDate || "-")}</td>
+
+        <td>
+          ${renderFollowDate(customer.followUpDate)}
+        </td>
+
         <td>
           <div class="actions">
-            <button class="btn-edit" onclick="editCustomer(${customer.id})">
+
+            <button
+              class="btn-edit"
+              onclick="editCustomer(${customer.id})"
+            >
               编辑
             </button>
-            <button class="btn-delete" onclick="deleteCustomer(${customer.id})">
+
+            <button
+              class="btn-delete"
+              onclick="deleteCustomer(${customer.id})"
+            >
               删除
             </button>
+
           </div>
         </td>
       `;
@@ -580,35 +935,74 @@
 
   function updateStats() {
 
-    document.getElementById("totalCustomers").textContent =
+    const today =
+      getTodayString();
+
+    document.getElementById(
+      "totalCustomers"
+    ).textContent =
       customers.length;
 
-    document.getElementById("sentCount").textContent =
+    document.getElementById(
+      "sentCount"
+    ).textContent =
       customers.filter(c =>
-        ["已发送", "待跟进", "已回复", "内部审核", "重点跟进", "已报价", "已成交"]
-        .includes(c.status)
+        [
+          "已发送",
+          "待跟进",
+          "已回复",
+          "内部审核",
+          "重点跟进",
+          "已报价",
+          "已成交"
+        ].includes(c.status)
       ).length;
 
-    document.getElementById("repliedCount").textContent =
+    document.getElementById(
+      "repliedCount"
+    ).textContent =
       customers.filter(c =>
-        ["已回复", "重点跟进", "已报价", "已成交"]
-        .includes(c.status)
+        [
+          "已回复",
+          "重点跟进",
+          "已报价",
+          "已成交"
+        ].includes(c.status)
       ).length;
 
-    document.getElementById("priorityCount").textContent =
+    document.getElementById(
+      "todayFollowCount"
+    ).textContent =
       customers.filter(c =>
-        ["待跟进", "重点跟进", "已报价"]
-        .includes(c.status)
+        c.followUpDate === today
+      ).length;
+
+    document.getElementById(
+      "overdueCount"
+    ).textContent =
+      customers.filter(c =>
+        c.followUpDate &&
+        c.followUpDate < today &&
+        !["已成交", "无意向"].includes(c.status)
       ).length;
   }
 
   function updateCountryFilter() {
 
-    const select = document.getElementById("countryFilter");
-    const current = select.value;
+    const select =
+      document.getElementById(
+        "countryFilter"
+      );
+
+    const current =
+      select.value;
 
     const countries = [
-      ...new Set(customers.map(c => c.country).filter(Boolean))
+      ...new Set(
+        customers
+          .map(c => c.country)
+          .filter(Boolean)
+      )
     ].sort();
 
     select.innerHTML =
@@ -616,7 +1010,8 @@
 
     countries.forEach(country => {
 
-      const option = document.createElement("option");
+      const option =
+        document.createElement("option");
 
       option.value = country;
       option.textContent = country;
@@ -632,68 +1027,180 @@
 
     editingId = null;
 
-    document.getElementById("modalTitle").textContent =
+    document.getElementById(
+      "modalTitle"
+    ).textContent =
       "新增客户";
 
     clearForm();
 
-    document.getElementById("customerModal")
-      .classList.add("show");
+    document.getElementById(
+      "customerModal"
+    ).classList.add("show");
   }
 
   function closeModal() {
 
-    document.getElementById("customerModal")
-      .classList.remove("show");
+    document.getElementById(
+      "customerModal"
+    ).classList.remove("show");
 
   }
 
   function clearForm() {
 
-    document.getElementById("customerName").value = "";
-    document.getElementById("country").value = "";
-    document.getElementById("customerType").value = "俱乐部";
-    document.getElementById("status").value = "未联系";
-    document.getElementById("email").value = "";
-    document.getElementById("whatsapp").value = "";
-    document.getElementById("contactDate").value = "";
-    document.getElementById("followUpDate").value = "";
-    document.getElementById("progress").value = "";
-    document.getElementById("notes").value = "";
+    document.getElementById(
+      "customerName"
+    ).value = "";
 
+    document.getElementById(
+      "country"
+    ).value = "";
+
+    document.getElementById(
+      "customerType"
+    ).value = "俱乐部";
+
+    document.getElementById(
+      "source"
+    ).value = "邮件开发";
+
+    document.getElementById(
+      "productInterest"
+    ).value = "家用台球桌";
+
+    document.getElementById(
+      "status"
+    ).value = "未联系";
+
+    document.getElementById(
+      "email"
+    ).value = "";
+
+    document.getElementById(
+      "whatsapp"
+    ).value = "";
+
+    document.getElementById(
+      "contactDate"
+    ).value = "";
+
+    document.getElementById(
+      "lastContactDate"
+    ).value = "";
+
+    document.getElementById(
+      "followUpDate"
+    ).value = "";
+
+    document.getElementById(
+      "quoteAmount"
+    ).value = "";
+
+    document.getElementById(
+      "progress"
+    ).value = "";
+
+    document.getElementById(
+      "notes"
+    ).value = "";
   }
 
   function saveCustomer() {
 
     const name =
-      document.getElementById("customerName").value.trim();
+      document.getElementById(
+        "customerName"
+      ).value.trim();
 
     const country =
-      document.getElementById("country").value.trim();
+      document.getElementById(
+        "country"
+      ).value.trim();
 
     if (!name || !country) {
+
       alert("请填写客户名称和国家");
       return;
     }
 
     const data = {
-      id: editingId || Date.now(),
-      name: name,
-      country: country,
-      type: document.getElementById("customerType").value,
-      status: document.getElementById("status").value,
-      email: document.getElementById("email").value.trim(),
-      whatsapp: document.getElementById("whatsapp").value.trim(),
-      contactDate: document.getElementById("contactDate").value,
-      followUpDate: document.getElementById("followUpDate").value,
-      progress: document.getElementById("progress").value.trim(),
-      notes: document.getElementById("notes").value.trim()
+
+      id:
+        editingId ||
+        Date.now(),
+
+      name,
+
+      country,
+
+      type:
+        document.getElementById(
+          "customerType"
+        ).value,
+
+      source:
+        document.getElementById(
+          "source"
+        ).value,
+
+      productInterest:
+        document.getElementById(
+          "productInterest"
+        ).value,
+
+      status:
+        document.getElementById(
+          "status"
+        ).value,
+
+      email:
+        document.getElementById(
+          "email"
+        ).value.trim(),
+
+      whatsapp:
+        document.getElementById(
+          "whatsapp"
+        ).value.trim(),
+
+      contactDate:
+        document.getElementById(
+          "contactDate"
+        ).value,
+
+      lastContactDate:
+        document.getElementById(
+          "lastContactDate"
+        ).value,
+
+      followUpDate:
+        document.getElementById(
+          "followUpDate"
+        ).value,
+
+      quoteAmount:
+        document.getElementById(
+          "quoteAmount"
+        ).value.trim(),
+
+      progress:
+        document.getElementById(
+          "progress"
+        ).value.trim(),
+
+      notes:
+        document.getElementById(
+          "notes"
+        ).value.trim()
     };
 
     if (editingId) {
 
       const index =
-        customers.findIndex(c => c.id === editingId);
+        customers.findIndex(
+          c => c.id === editingId
+        );
 
       customers[index] = data;
 
@@ -707,84 +1214,321 @@
     updateCountryFilter();
     renderTable();
     closeModal();
-
   }
 
   function editCustomer(id) {
 
     const customer =
-      customers.find(c => c.id === id);
+      customers.find(
+        c => c.id === id
+      );
 
     if (!customer) return;
 
     editingId = id;
 
-    document.getElementById("modalTitle").textContent =
+    document.getElementById(
+      "modalTitle"
+    ).textContent =
       "编辑客户";
 
-    document.getElementById("customerName").value =
+    document.getElementById(
+      "customerName"
+    ).value =
       customer.name || "";
 
-    document.getElementById("country").value =
+    document.getElementById(
+      "country"
+    ).value =
       customer.country || "";
 
-    document.getElementById("customerType").value =
+    document.getElementById(
+      "customerType"
+    ).value =
       customer.type || "其他";
 
-    document.getElementById("status").value =
+    document.getElementById(
+      "source"
+    ).value =
+      customer.source || "其他";
+
+    document.getElementById(
+      "productInterest"
+    ).value =
+      customer.productInterest || "待确认";
+
+    document.getElementById(
+      "status"
+    ).value =
       customer.status || "未联系";
 
-    document.getElementById("email").value =
+    document.getElementById(
+      "email"
+    ).value =
       customer.email || "";
 
-    document.getElementById("whatsapp").value =
+    document.getElementById(
+      "whatsapp"
+    ).value =
       customer.whatsapp || "";
 
-    document.getElementById("contactDate").value =
+    document.getElementById(
+      "contactDate"
+    ).value =
       customer.contactDate || "";
 
-    document.getElementById("followUpDate").value =
+    document.getElementById(
+      "lastContactDate"
+    ).value =
+      customer.lastContactDate || "";
+
+    document.getElementById(
+      "followUpDate"
+    ).value =
       customer.followUpDate || "";
 
-    document.getElementById("progress").value =
+    document.getElementById(
+      "quoteAmount"
+    ).value =
+      customer.quoteAmount || "";
+
+    document.getElementById(
+      "progress"
+    ).value =
       customer.progress || "";
 
-    document.getElementById("notes").value =
+    document.getElementById(
+      "notes"
+    ).value =
       customer.notes || "";
 
-    document.getElementById("customerModal")
-      .classList.add("show");
-
+    document.getElementById(
+      "customerModal"
+    ).classList.add("show");
   }
 
   function deleteCustomer(id) {
 
     const customer =
-      customers.find(c => c.id === id);
+      customers.find(
+        c => c.id === id
+      );
 
     if (!customer) return;
 
-    if (!confirm(`确定删除客户：${customer.name}？`)) {
+    if (
+      !confirm(
+        `确定删除客户：${customer.name}？`
+      )
+    ) {
       return;
     }
 
     customers =
-      customers.filter(c => c.id !== id);
+      customers.filter(
+        c => c.id !== id
+      );
 
     saveToStorage();
     updateCountryFilter();
     renderTable();
-
   }
 
   function clearFilters() {
 
-    document.getElementById("searchInput").value = "";
-    document.getElementById("countryFilter").value = "";
-    document.getElementById("statusFilter").value = "";
+    document.getElementById(
+      "searchInput"
+    ).value = "";
+
+    document.getElementById(
+      "countryFilter"
+    ).value = "";
+
+    document.getElementById(
+      "statusFilter"
+    ).value = "";
+
+    document.getElementById(
+      "followFilter"
+    ).value = "";
 
     renderTable();
+  }
 
+  function exportCSV() {
+
+    const headers = [
+      "客户名称",
+      "国家",
+      "客户类型",
+      "来源",
+      "产品意向",
+      "邮箱",
+      "WhatsApp",
+      "联系状态",
+      "报价金额",
+      "首次联系日期",
+      "最后联系日期",
+      "下次跟进日期",
+      "当前进度",
+      "备注"
+    ];
+
+    const rows =
+      customers.map(c => [
+        c.name,
+        c.country,
+        c.type,
+        c.source,
+        c.productInterest,
+        c.email,
+        c.whatsapp,
+        c.status,
+        c.quoteAmount,
+        c.contactDate,
+        c.lastContactDate,
+        c.followUpDate,
+        c.progress,
+        c.notes
+      ]);
+
+    const csvData =
+      [headers, ...rows]
+      .map(row =>
+        row.map(value =>
+          `"${String(value || "")
+            .replace(/"/g, '""')}"`
+        ).join(",")
+      )
+      .join("\n");
+
+    const blob =
+      new Blob(
+        ["\ufeff" + csvData],
+        {
+          type:
+            "text/csv;charset=utf-8;"
+        }
+      );
+
+    downloadBlob(
+      blob,
+      `冠力台球客户数据_${getTodayString()}.csv`
+    );
+  }
+
+  function backupJSON() {
+
+    const backupData = {
+      version: 1,
+      backupDate:
+        new Date().toISOString(),
+      customers
+    };
+
+    const blob =
+      new Blob(
+        [
+          JSON.stringify(
+            backupData,
+            null,
+            2
+          )
+        ],
+        {
+          type:
+            "application/json"
+        }
+      );
+
+    downloadBlob(
+      blob,
+      `冠力CRM备份_${getTodayString()}.json`
+    );
+  }
+
+  function restoreJSON(event) {
+
+    const file =
+      event.target.files[0];
+
+    if (!file) return;
+
+    const reader =
+      new FileReader();
+
+    reader.onload = function(e) {
+
+      try {
+
+        const data =
+          JSON.parse(e.target.result);
+
+        const restoredCustomers =
+          Array.isArray(data)
+            ? data
+            : data.customers;
+
+        if (
+          !Array.isArray(
+            restoredCustomers
+          )
+        ) {
+          throw new Error();
+        }
+
+        if (
+          !confirm(
+            "恢复备份将覆盖当前客户数据，确定继续吗？"
+          )
+        ) {
+          return;
+        }
+
+        customers =
+          restoredCustomers;
+
+        saveToStorage();
+        updateCountryFilter();
+        renderTable();
+
+        alert("数据恢复成功");
+
+      } catch {
+
+        alert(
+          "备份文件格式不正确"
+        );
+
+      }
+
+      event.target.value = "";
+    };
+
+    reader.readAsText(file);
+  }
+
+  function downloadBlob(
+    blob,
+    filename
+  ) {
+
+    const url =
+      URL.createObjectURL(blob);
+
+    const a =
+      document.createElement("a");
+
+    a.href = url;
+    a.download = filename;
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
   }
 
   function escapeHtml(text) {
@@ -797,14 +1541,18 @@
       .replace(/'/g, "&#039;");
   }
 
-  document.getElementById("customerModal")
-    .addEventListener("click", function(event) {
+  document.getElementById(
+    "customerModal"
+  ).addEventListener(
+    "click",
+    function(event) {
 
       if (event.target === this) {
         closeModal();
       }
 
-    });
+    }
+  );
 
   updateCountryFilter();
   renderTable();
