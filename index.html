@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>冠力台球业务管理系统</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+      background: #f4f6f8;
+      color: #222;
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 20px 30px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      color: #cbd5e1;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: #6b7280;
+    }
+
+    .number {
+      font-size: 30px;
+      font-weight: bold;
+    }
+
+    .section-title {
+      margin: 30px 0 15px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+
+    th, td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f9fafb;
+      color: #4b5563;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    .waiting {
+      background: #fff7ed;
+      color: #c2410c;
+    }
+
+    .replied {
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    .follow {
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      background: #111827;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    @media (max-width: 800px) {
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>冠力台球业务管理系统</h1>
+  <p>客户开发 · 跟进管理 · 报价记录 · 市场开发</p>
+</header>
+
+<div class="container">
+
+  <div class="stats">
+    <div class="card">
+      <h3>客户总数</h3>
+      <div class="number">5</div>
+    </div>
+
+    <div class="card">
+      <h3>已发送开发信</h3>
+      <div class="number">5</div>
+    </div>
+
+    <div class="card">
+      <h3>已回复</h3>
+      <div class="number">3</div>
+    </div>
+
+    <div class="card">
+      <h3>重点跟进</h3>
+      <div class="number">3</div>
+    </div>
+  </div>
+
+  <div class="section-title">客户跟进列表</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>客户名称</th>
+        <th>国家</th>
+        <th>客户类型</th>
+        <th>联系状态</th>
+        <th>当前进度</th>
+        <th>下一步</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td>The New Club</td>
+        <td>马来西亚</td>
+        <td>俱乐部</td>
+        <td><span class="status replied">已回复</span></td>
+        <td>等待装修及负责人确认</td>
+        <td>持续邮件跟进</td>
+      </tr>
+
+      <tr>
+        <td>Ubuy Malaysia</td>
+        <td>马来西亚</td>
+        <td>零售平台</td>
+        <td><span class="status follow">待跟进</span></td>
+        <td>等待代理人员回复</td>
+        <td>3-5天后跟进</td>
+      </tr>
+
+      <tr>
+        <td>Toys“R”Us Malaysia</td>
+        <td>马来西亚</td>
+        <td>零售商</td>
+        <td><span class="status follow">内部审核</span></td>
+        <td>已转交相关团队</td>
+        <td>等待回复</td>
+      </tr>
+
+      <tr>
+        <td>Ipoh Swimming Club</td>
+        <td>马来西亚</td>
+        <td>俱乐部</td>
+        <td><span class="status waiting">已送达</span></td>
+        <td>尚未正式回复</td>
+        <td>发送跟进邮件</td>
+      </tr>
+
+      <tr>
+        <td>Setia Alam Club House</td>
+        <td>马来西亚</td>
+        <td>俱乐部</td>
+        <td><span class="status waiting">工单已建立</span></td>
+        <td>等待工作人员处理</td>
+        <td>后续跟进</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="section-title">下一阶段功能</div>
+
+  <div class="card">
+    <p>① 客户资料新增、编辑、删除</p>
+    <p>② 自动记录开发信发送日期</p>
+    <p>③ 自动生成英文跟进邮件</p>
+    <p>④ 马来西亚 / 泰国 / 印尼 / 越南 / 新加坡客户分类</p>
+    <p>⑤ 报价与成交记录</p>
+    <p>⑥ 每日待跟进客户提醒</p>
+  </div>
+
+</div>
+
+</body>
+</html>
